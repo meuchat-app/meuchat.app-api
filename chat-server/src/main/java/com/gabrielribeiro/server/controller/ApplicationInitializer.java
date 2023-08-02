@@ -18,7 +18,7 @@ public class ApplicationInitializer implements WebApplicationInitializer{
 //	    context.register(AccountConfig.class);
 //	    context.setServletContext(container);
 
-	     servletContext.setAttribute("meuchat", new MeuPrograma());
+	     servletContext.setAttribute("meuchat", new Eco());
 		
 	}
 	

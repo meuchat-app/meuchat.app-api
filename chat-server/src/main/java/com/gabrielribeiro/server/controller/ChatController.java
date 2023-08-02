@@ -26,7 +26,7 @@ public class ChatController {
 		
 //		MeuChat mc = (MeuChat) servletContext.getAttribute("meuchat");
 		
-		MeuChat mc = new MeuPrograma();
+		MeuChat mc = new Eco();
 		
 		mc.receiveMessage(message);
 		
