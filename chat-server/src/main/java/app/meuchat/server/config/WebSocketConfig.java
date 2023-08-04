@@ -1,4 +1,4 @@
-package com.gabrielribeiro.server.config;
+package app.meuchat.server.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;

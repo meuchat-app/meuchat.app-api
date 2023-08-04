@@ -1,4 +1,4 @@
-package com.gabrielribeiro.server.model;
+package app.meuchat.server.model;
 
 public class Chat {
 	private Message message;
