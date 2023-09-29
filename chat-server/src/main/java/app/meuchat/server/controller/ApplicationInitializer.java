@@ -1,5 +1,6 @@
 package app.meuchat.server.controller;
 
+import app.meuchat.server.service.Eco;
 import org.springframework.web.WebApplicationInitializer;
 
 import jakarta.servlet.ServletContext;

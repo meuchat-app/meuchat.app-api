@@ -1,6 +1,9 @@
 package app.meuchat.server.controller;
 
 
+import app.meuchat.server.service.Eco;
+import app.meuchat.server.service.TaskManegerService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -21,15 +24,19 @@ public class ChatController {
 	@Autowired
 	private SimpMessagingTemplate simpMessagingTemplate;
 
+	MeuChat mc = new TaskManegerService();
+
+
 	@MessageMapping("/private-message")
 	private void receivePrivateMessage(@Payload Message message) {
 //		MeuChat mc = (MeuChat) servletContext.getAttribute("meuchat");
 		
-		MeuChat mc = new Eco();
 		
 		try {
+		
 			mc.receiveMessage(message);
 			sendFilteredPrivateMessages(mc.getChat().getResponse(), "/user");
+		
 		} catch (Exception e) {
 			
 			e.printStackTrace();
