@@ -3,6 +3,7 @@ package app.meuchat.server.controller;
 
 
 
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,21 +57,24 @@ public class ChatController {
 		System.out.println(message.toString());
 	}
 
-	private static Class<?>[] getClasses(String packageName) {
+	private static List<Class<?>> getClasses(String packageName) {
 		String path = packageName.replace('.', '/');
+		List<Class<?>> classes = new ArrayList<Class<?>>();
+
 		try {
-			ClassLoader classLoader = Class.forName(baseClassPackageName).getClassLoader();
+			ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 			java.net.URL resource = classLoader.getResource(path);
-
-			String fullPath = resource.getFile();
-			java.io.File directory = new java.io.File(fullPath);
-			String classFiles = directory.list()[0];
-			Class<?>[] classes = new Class<?>[classFiles.length()];
-
-			for (int i = 0; i < classFiles.length(); i++) {
-				String className = packageName + '.' + classFiles.substring(0, classFiles.length() - 6);
-				classes[i] = Class.forName(className);
+			File directory = new File(resource.getFile());
+			if(directory.exists() && directory.isDirectory()){
+				for(File file : directory.listFiles()){
+					if(file.isFile() && file.getName().endsWith(".class")){
+						String className = packageName + "." + file.getName().replace(".class", "");
+						Class<?> clazz = Class.forName(className);
+						classes.add(clazz);
+					}
+				}
 			}
+			
 			return classes;
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -82,7 +86,7 @@ public class ChatController {
 	private static List<Class<?>> getMeuChatSubclasses(String packageName)  {
 		String baseClassName = "MeuChat";
 		try {
-			Class<?>[] allClasses = getClasses(packageName);
+			List<Class<?>> allClasses = getClasses(packageName);
 			List<Class<?>> classes = new ArrayList<Class<?>>();
 
 			for (Class<?> clazz : allClasses) {

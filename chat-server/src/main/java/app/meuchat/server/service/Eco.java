@@ -6,13 +6,8 @@ import app.meuchat.server.model.Message;
 import app.meuchat.server.model.MeuChat;
 
 @Service
-public class Eco extends MeuChat {
+public class Eco {
 
-    @Override
-    public void receiveMessage(Message msg) {
-       chat.setResponse(msg.getMessage());
-    }
-    
 
     
 }
