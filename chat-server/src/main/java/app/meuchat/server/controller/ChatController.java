@@ -1,10 +1,11 @@
 package app.meuchat.server.controller;
 
 
-import app.meuchat.server.service.TaskManegerService;
-import clojure.reflect.Constructor;
+
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -26,14 +27,11 @@ public class ChatController {
 	@Autowired
 	private SimpMessagingTemplate simpMessagingTemplate;
 
-
-
-
 	static String baseClassPackageName = "app.meuchat.server.model.MeuChat";
 	String targetPackageName = "app.meuchat.server.service";
 	
-	Class<?>[] allClasses = getClasses(targetPackageName);
-	MeuChat mc = (MeuChat) createInstance(allClasses[0]);
+	List<Class<?>> allClasses = getMeuChatSubclasses(targetPackageName);
+	MeuChat mc = (MeuChat) createInstance(allClasses.get(0));
 
 
 	@MessageMapping("/private-message")
@@ -58,7 +56,7 @@ public class ChatController {
 		System.out.println(message.toString());
 	}
 
-	private static Class<?>[] getClasses(String packageName)  {
+	private static Class<?>[] getClasses(String packageName) {
 		String path = packageName.replace('.', '/');
 		try {
 			ClassLoader classLoader = Class.forName(baseClassPackageName).getClassLoader();
@@ -68,17 +66,38 @@ public class ChatController {
 			java.io.File directory = new java.io.File(fullPath);
 			String classFiles = directory.list()[0];
 			Class<?>[] classes = new Class<?>[classFiles.length()];
-			
+
 			for (int i = 0; i < classFiles.length(); i++) {
 				String className = packageName + '.' + classFiles.substring(0, classFiles.length() - 6);
 				classes[i] = Class.forName(className);
 			}
-			return classes;	
+			return classes;
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 			return null;
 		}
+
+	}
+	
+	private static List<Class<?>> getMeuChatSubclasses(String packageName)  {
+		String baseClassName = "MeuChat";
+		try {
+			Class<?>[] allClasses = getClasses(packageName);
+			List<Class<?>> classes = new ArrayList<Class<?>>();
+
+			for (Class<?> clazz : allClasses) {
+				if (clazz.getSuperclass() != null && clazz.getSuperclass().getSimpleName().equals(baseClassName)) {
+					classes.add(clazz);
+				}
+
+			};
+			
+			return classes;		
 		
+		}catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	private static Object createInstance(Class<?> clazz){
