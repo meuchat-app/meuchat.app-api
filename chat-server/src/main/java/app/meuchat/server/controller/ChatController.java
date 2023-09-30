@@ -1,8 +1,10 @@
 package app.meuchat.server.controller;
 
 
-import app.meuchat.server.service.Eco;
 import app.meuchat.server.service.TaskManegerService;
+import clojure.reflect.Constructor;
+
+import java.lang.reflect.InvocationTargetException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -24,16 +26,19 @@ public class ChatController {
 	@Autowired
 	private SimpMessagingTemplate simpMessagingTemplate;
 
-	MeuChat mc = new TaskManegerService();
+
+
+
+	static String baseClassPackageName = "app.meuchat.server.model.MeuChat";
+	String targetPackageName = "app.meuchat.server.service";
+	
+	Class<?>[] allClasses = getClasses(targetPackageName);
+	MeuChat mc = (MeuChat) createInstance(allClasses[0]);
 
 
 	@MessageMapping("/private-message")
 	private void receivePrivateMessage(@Payload Message message) {
-//		MeuChat mc = (MeuChat) servletContext.getAttribute("meuchat");
-		
-		
 		try {
-		
 			mc.receiveMessage(message);
 			sendFilteredPrivateMessages(mc.getChat().getResponse(), "/user");
 		
@@ -51,6 +56,38 @@ public class ChatController {
 		simpMessagingTemplate.convertAndSend(destination, message);
 
 		System.out.println(message.toString());
+	}
+
+	private static Class<?>[] getClasses(String packageName)  {
+		String path = packageName.replace('.', '/');
+		try {
+			ClassLoader classLoader = Class.forName(baseClassPackageName).getClassLoader();
+			java.net.URL resource = classLoader.getResource(path);
+
+			String fullPath = resource.getFile();
+			java.io.File directory = new java.io.File(fullPath);
+			String classFiles = directory.list()[0];
+			Class<?>[] classes = new Class<?>[classFiles.length()];
+			
+			for (int i = 0; i < classFiles.length(); i++) {
+				String className = packageName + '.' + classFiles.substring(0, classFiles.length() - 6);
+				classes[i] = Class.forName(className);
+			}
+			return classes;	
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+	}
+
+	private static Object createInstance(Class<?> clazz){
+		try {
+			return clazz.getDeclaredConstructor().newInstance();
+		} catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 }
