@@ -21,17 +21,30 @@ public class TaskManegerService extends MeuChat {
         + "3 - Remover tarefa";
     String mensagemDeAdicionarTarefa = "Qual tarefa deseja adicionar? Digite 0 para cancelar";
     String mensagemDeRemoverTarefa = "Qual tarefa deseja remover? Digite 0 para cancelar";
+    String mensagemDeNaoHaTarefasCadastradas = "Não há tarefas cadastradas. Digite 0 se quiser ver as opções novamente.";
+    String mensagemDeOpcaoCancelada = "Operação cancelada. Digite 0 se quiser ver as opções novamente.";
+    String mensagemDeOpcaoInvalida = "Opção inválida! \n Digite 0 se quiser ver as opções novamente.";
+    String mensagemDeTarefaAdicionadaComSucesso = "Tarefa adicionada com sucesso! \n Digite 0 se quiser ver as opções novamente.";
+    String mensagemDeTarefaRemovidaComSucesso = "Tarefa removida com sucesso! \n Digite 0 se quiser ver as opções novamente.";
+    String mensagemDeTarefaNaoEncontrada = "Tarefa não encontrada! \n Digite 0 se quiser ver as opções novamente.";
+
+
+
+
+
+
 
     @Override
     public void receiveMessage(Message msg) {
         System.out.println(msg.getMessage());
 
-        if (!response.equals("") && context.equals("0")){
-            if (msg.getMessage().equals("1") || (msg.getMessage().equals("2") || msg.getMessage().equals("3"))) {
+        if (!response.equals("") && context.equals("0")) {
+            if (msg.getMessage().matches("[0-3]*")) {
                 context = msg.getMessage();
             } else {
-                response = "Opção inválida";
+                response = mensagemDeOpcaoInvalida;
                 chat.setResponse(response);
+                return;
             }
         }
 
@@ -68,11 +81,11 @@ public class TaskManegerService extends MeuChat {
         } else {
             if (!msg.getMessage().equals("0")) {
                 tasks.add(msg.getMessage());
-                response = "Tarefa adicionada com sucesso!  Digite 0 se quiser ver as opções novamente.";
+                response = mensagemDeTarefaAdicionadaComSucesso;
                 chat.setResponse(response);
                 context = "0";
             } else {
-                response = "Operação cancelada. Digite 0 se quiser ver as opções novamente.";
+                response = mensagemDeOpcaoCancelada;
                 chat.setResponse(response);
                 context = "0";
             }
@@ -90,7 +103,7 @@ public class TaskManegerService extends MeuChat {
             chat.setResponse(response);
             context = "0";
         } else {
-            response = "Não há tarefas cadastradas.  Digite 0 se quiser ver as opções novamente.";
+            response = mensagemDeNaoHaTarefasCadastradas;
             chat.setResponse(response);
             context = "0";
         }
@@ -98,29 +111,37 @@ public class TaskManegerService extends MeuChat {
     
     public void removeTask(Message msg){
         if (tasks.size() > 0) {
-            String list = "";
-            for (int i = 0; i < tasks.size(); i++) {
-                list += (i+1) + " - " + tasks.get(i) + "\n";
-            }
-
-            if (!response.equals(list + mensagemDeRemoverTarefa)) {
-                response = list + mensagemDeRemoverTarefa;
-                chat.setResponse(response);
-
-            } else {
-                if (!msg.getMessage().equals("0")) {
-                    tasks.remove(Integer.parseInt(msg.getMessage())-1);
-                    response = "Tarefa removida com sucesso! Digite 0 se quiser ver as opções novamente.";
-                    chat.setResponse(response);
-                    context = "0";
-                } else {
-                    response = "Operação cancelada";
-                    chat.setResponse(response);
-                    context = "0";
+            
+                String list = "";
+                for (int i = 0; i < tasks.size(); i++) {
+                    list += (i+1) + " - " + tasks.get(i) + "\n";
                 }
-            }
+
+                if (!response.contains(mensagemDeRemoverTarefa)) {
+                    response = list + mensagemDeRemoverTarefa;
+                    chat.setResponse(response);
+
+                } else {
+                    if (!msg.getMessage().equals("0")) {
+                        if(msg.getMessage().matches("[0-"+(tasks.size())+"]")){
+                            tasks.remove(Integer.parseInt(msg.getMessage()) - 1);
+                            response = mensagemDeTarefaRemovidaComSucesso;
+                            chat.setResponse(response);
+                            context = "0";
+                        }else{
+                            response = mensagemDeOpcaoInvalida;
+                            chat.setResponse(response);
+                            context = "0";
+                        }
+                    } else {
+                        response = mensagemDeOpcaoCancelada;
+                        chat.setResponse(response);
+                        context = "0";
+                    }
+                }
+            
         } else {
-            response = "Não há tarefas cadastradas";
+            response = mensagemDeNaoHaTarefasCadastradas;
             chat.setResponse(response);
             context = "0";
         }
