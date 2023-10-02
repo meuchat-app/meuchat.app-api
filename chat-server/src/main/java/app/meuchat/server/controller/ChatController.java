@@ -31,8 +31,8 @@ public class ChatController {
 	static String baseClassPackageName = "app.meuchat.server.model.MeuChat";
 	String targetPackageName = "app.meuchat.server.service";
 	
-	List<Class<?>> allClasses = getMeuChatSubclasses(targetPackageName);
-	MeuChat mc = (MeuChat) createInstance(allClasses.get(0));
+	List<Class<?>> allSubclasses = getMeuChatSubclasses(targetPackageName);
+	MeuChat mc = (MeuChat) createInstance(allSubclasses.get(0));
 
 
 	@MessageMapping("/private-message")
